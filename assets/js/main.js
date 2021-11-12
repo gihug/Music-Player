@@ -11,11 +11,13 @@ const progress = $("#progress");
 const nextBtn = $(".btn-next");
 const preBtn = $(".btn-prev");
 const randomBtn = $(".btn-random");
+const repeatBtn = $(".btn-repeat");
 
 const app = {
   currentIndex: 0,
   isPlaying: false,
   isRandom: false,
+  isRepeat: false,
   songs: [
     {
       name: "Always Remember Us This Way",
@@ -52,24 +54,6 @@ const app = {
       singer: "Bradley Cooper",
       path: "/assets/audio/toofar.mp3",
       image: "/assets/img/6.jpg",
-    },
-    {
-      name: "Always Remember Us This Way",
-      singer: "Lady Gaga",
-      path: "/assets/audio/AlwaysRememberUsThisWay-LadyGaga-5693911.mp3",
-      image: "/assets/img/1.jpg",
-    },
-    {
-      name: "Shallow",
-      singer: "Lady Gaga",
-      path: "/assets/audio/Shallow-Lady-Gaga_ Bradley-Cooper.mp3",
-      image: "/assets/img/2.jpg",
-    },
-    {
-      name: "I Never Love Again",
-      singer: "Lady Gaga",
-      path: "/assets/audio/ILlNeverLoveExtendedVersionRadioEdit-LadyGaga-5693922.mp3",
-      image: "/assets/img/3.jpg",
     },
   ],
   render: function () {
@@ -159,27 +143,45 @@ const app = {
       audio.currentTime = seekTime;
     };
 
-    //Xử lý khi next bài
-    nextBtn.onclick = function () {
-      app.nextSong();
+    //Xử lý khi prev bài
+    preBtn.onclick = function () {
+      if (app.isRandom) {
+        app.playRandom();
+      } else {
+        app.prevSong();
+      }
       audio.play();
     };
 
-    //Xử lý khi prev bài
-    preBtn.onclick = function () {
-      app.prevSong();
+    //Xử lý khi next bài
+    nextBtn.onclick = function () {
+      if (app.isRandom) {
+        app.playRandom();
+      } else {
+        app.nextSong();
+      }
       audio.play();
     };
 
     //Xử lý bật ngẫu nhiên
     randomBtn.onclick = function () {
-      if (!app.isRandom) {
-        randomBtn.classList.add("active");
-        app.isRandom = true;
+      app.isRandom = !app.isRandom;
+      randomBtn.classList.toggle("active", app.isRandom);
+    };
+
+    //Xử lý next song khi audio ended
+    audio.onended = function () {
+      if (app.isRepeat) {
+        audio.play();
       } else {
-        randomBtn.classList.remove("active");
-        app.isRandom = false;
+        nextBtn.onclick();
       }
+    };
+
+    //Xử lý repeat song
+    repeatBtn.onclick = function () {
+      app.isRepeat = !app.isRepeat;
+      repeatBtn.classList.toggle("active", app.isRepeat);
     };
   },
   loadCurrentSong: function () {
@@ -199,6 +201,14 @@ const app = {
     if (this.currentIndex >= this.songs.length) {
       this.currentIndex = 0;
     }
+    this.loadCurrentSong();
+  },
+  playRandom: function () {
+    let newIndex;
+    do {
+      newIndex = Math.floor(Math.random() * this.songs.length);
+    } while (this.currentIndex === newIndex);
+    this.currentIndex = newIndex;
     this.loadCurrentSong();
   },
   start: function () {
