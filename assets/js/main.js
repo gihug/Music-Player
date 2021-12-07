@@ -57,9 +57,9 @@ const app = {
     },
   ],
   render: function () {
-    const htmls = this.songs.map((song) => {
+    const htmls = this.songs.map((song, index) => {
       return `
-              <div class="song">
+              <div class="song ${index == this.currentIndex ? "active" : ""}">
                   <div
                     class="thumb"
                     style="
@@ -188,6 +188,7 @@ const app = {
     heading.textContent = this.currentSong.name;
     cdThumb.style.backgroundImage = `url('${this.currentSong.image}')`;
     audio.src = this.currentSong.path;
+    app.render();
   },
   prevSong: function () {
     this.currentIndex--;
