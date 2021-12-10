@@ -12,6 +12,7 @@ const nextBtn = $(".btn-next");
 const preBtn = $(".btn-prev");
 const randomBtn = $(".btn-random");
 const repeatBtn = $(".btn-repeat");
+const playlist = $(".playlist");
 
 const app = {
   currentIndex: 0,
@@ -59,7 +60,9 @@ const app = {
   render: function () {
     const htmls = this.songs.map((song, index) => {
       return `
-              <div class="song ${index == this.currentIndex ? "active" : ""}">
+              <div class="song ${
+                index == this.currentIndex ? "active" : ""
+              }" data-index="${index}">
                   <div
                     class="thumb"
                     style="
@@ -77,7 +80,7 @@ const app = {
       `;
     });
 
-    $(".playlist").innerHTML = htmls.join("");
+    playlist.innerHTML = htmls.join("");
   },
   defineProperties: function () {
     Object.defineProperty(this, "currentSong", {
@@ -151,6 +154,7 @@ const app = {
         app.prevSong();
       }
       audio.play();
+      app.scollToActiveSong();
     };
 
     //Xử lý khi next bài
@@ -161,6 +165,7 @@ const app = {
         app.nextSong();
       }
       audio.play();
+      app.scollToActiveSong();
     };
 
     //Xử lý bật ngẫu nhiên
@@ -183,6 +188,31 @@ const app = {
       app.isRepeat = !app.isRepeat;
       repeatBtn.classList.toggle("active", app.isRepeat);
     };
+
+    //Lắng nghe hành vi click vào playlist
+    playlist.onclick = function (e) {
+      const songNode = e.target.closest(".song:not(.active)");
+      if (songNode || e.target.closest(".option")) {
+        // xử lý khi click vào song
+        if (songNode) {
+          app.currentIndex = songNode.dataset.index;
+          app.loadCurrentSong();
+          app.render();
+          audio.play();
+        }
+        // xử lý khi click vào song option
+        if (e.target.closest(".option")) {
+        }
+      }
+    };
+  },
+  scollToActiveSong: function () {
+    setTimeout(() => {
+      $(".song.active").scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    }, 500);
   },
   loadCurrentSong: function () {
     heading.textContent = this.currentSong.name;
